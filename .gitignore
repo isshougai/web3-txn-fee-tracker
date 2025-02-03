@@ -1,3 +1,2 @@
 .env
-.python-version
-backend/__pycache__/main.cpython-312.pyc
+__pycache__
