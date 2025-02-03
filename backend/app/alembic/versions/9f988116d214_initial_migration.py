@@ -1,19 +1,19 @@
 """Initial migration
 
-Revision ID: ac8f3647552c
+Revision ID: 9f988116d214
 Revises: 
-Create Date: 2025-02-03 22:45:08.399415
+Create Date: 2025-02-04 00:08:37.862816
 
 """
 from typing import Sequence, Union
+import sqlmodel.sql.sqltypes
 
 from alembic import op
 import sqlalchemy as sa
-import sqlmodel.sql.sqltypes
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ac8f3647552c'
+revision: str = '9f988116d214'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -41,11 +41,11 @@ def upgrade() -> None:
     sa.Column('tx_hash', sqlmodel.sql.sqltypes.AutoString(length=66), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
     sa.Column('txn_fee_usdt', sa.Float(), nullable=False),
-    sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('gas_used', sa.Integer(), nullable=False),
     sa.Column('gas_price_wei', sa.Integer(), nullable=False),
     sa.Column('txn_fee_eth', sa.Float(), nullable=False),
     sa.Column('eth_usdt_price', sa.Float(), nullable=False),
+    sa.Column('id', sa.Uuid(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_transaction_timestamp'), 'transaction', ['timestamp'], unique=False)

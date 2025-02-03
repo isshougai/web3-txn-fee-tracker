@@ -9,15 +9,15 @@ class TransactionBase(SQLModel):
     tx_hash: str = Field(unique=True, index=True, max_length=66)
     timestamp: datetime = Field(index=True)
     txn_fee_usdt: float
+    gas_used: int
+    gas_price_wei: int
+    txn_fee_eth: float
+    eth_usdt_price: float
 
 # Database model, database table inferred from class name
 class Transaction(TransactionBase, table=True):
     """Database model for Ethereum transaction."""
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    gas_used: int
-    gas_price_wei: int
-    txn_fee_eth: float
-    eth_usdt_price: float
 
 # Properties to return via API, id is always required
 class TransactionPublic(TransactionBase):
