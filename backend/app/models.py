@@ -1,7 +1,7 @@
 import uuid
 
 from datetime import datetime
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, UniqueConstraint
 
 # Shared properties
 class TransactionBase(SQLModel):
@@ -13,6 +13,10 @@ class TransactionBase(SQLModel):
     gas_price_wei: int
     txn_fee_eth: float
     eth_usdt_price: float
+
+class TransactionCreate(TransactionBase):
+    """Create model for Ethereum transaction."""
+    pass
 
 # Database model, database table inferred from class name
 class Transaction(TransactionBase, table=True):
@@ -34,7 +38,11 @@ class TransactionsPublic(SQLModel):
 class LastUpdateBase(SQLModel):
     """Base model for data last update."""
     type: str = Field(unique=True, index=True, max_length=50)
-    timestamp: datetime | None = Field(default=None)
+    timestamp: datetime
+
+class LastUpdateCreate(LastUpdateBase):
+    """Base model for data last update."""
+    pass
 
 # Database model, database table inferred from class name
 class LastUpdate(LastUpdateBase, table=True):
@@ -48,7 +56,15 @@ class SpotPriceBase(SQLModel):
     timestamp: datetime = Field(index=True)
     price: float
 
+class SpotPriceCreate(SpotPriceBase):
+    """Base model for spot price data."""
+    pass
+
 # Database model, database table inferred from class name
 class SpotPrice(SpotPriceBase, table=True):
     """Database model for spot price data."""
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    __table_args__ = (
+        UniqueConstraint("symbol", "timestamp", name="symbol_timestamp_uc"),
+    )
