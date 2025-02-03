@@ -8,6 +8,7 @@ dependencies = [
     "alembic<2.0.0,>=1.14.1",
     "binance-connector>=3.12.0",
     "fastapi[standard]<1.0.0,>=0.115.8",
+    "tenacity<9.0.0,>=8.2.3",
     "httpx>=0.28.1",
     "psycopg[binary]<4.0.0,>=3.2.4",
     "pydantic-settings<3.0.0,>=2.7.1",

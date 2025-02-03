@@ -1,6 +1,5 @@
 import uuid
 
-from pydantic import EmailStr
 from datetime import datetime
 from sqlmodel import Field, SQLModel
 

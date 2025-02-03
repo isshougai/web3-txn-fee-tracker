@@ -47,9 +47,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str = ""
-    POSTGRES_DB: str = ""
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str = "app"
 
     INFURA_API_KEY: str
     INFURA_HTTPS: str
