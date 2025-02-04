@@ -7,6 +7,12 @@ from datetime import datetime, timedelta, timezone
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+SessionLocal = Session(engine)
+
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
