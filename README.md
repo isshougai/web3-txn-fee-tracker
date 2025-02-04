@@ -59,6 +59,13 @@ Frontend, built with Docker, with routes handled based on the path: http://local
 
 Backend, JSON based web API based on OpenAPI: http://localhost:8000, with docs at http://localhost:8000/docs
 
+### 4. Testing
+
+Exec into the backend pod, and run: 
+```bash
+bash ./scripts/test.sh
+```
+
 
 ## Backend Features
 
