@@ -41,7 +41,9 @@ class TransactionsPublic(SQLModel):
 class LastUpdateBase(SQLModel):
     """Base model for data last update."""
     type: str = Field(unique=True, index=True, max_length=50)
-    timestamp: datetime
+    timestamp: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), index=True)
+    )
 
 class LastUpdateCreate(LastUpdateBase):
     """Base model for data last update."""
@@ -56,7 +58,9 @@ class LastUpdate(LastUpdateBase, table=True):
 class SpotPriceBase(SQLModel):
     """Base model for spot price data."""
     symbol: str = Field(index=True, max_length=10)
-    timestamp: datetime = Field(index=True)
+    timestamp: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), index=True)
+    )
     price: float
 
 class SpotPriceCreate(SpotPriceBase):
