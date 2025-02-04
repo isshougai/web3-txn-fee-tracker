@@ -1,6 +1,6 @@
 from sqlmodel import Session, select, func
 from datetime import datetime
-from typing import Optional
+from typing import Dict, Optional, List
 from app.models import Transaction, TransactionCreate, TransactionsPublic, LastUpdate, LastUpdateCreate, SpotPrice, SpotPriceCreate
 from sqlalchemy.exc import IntegrityError
 
@@ -13,24 +13,26 @@ def get_transactions(
     limit: int = 50,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-    tx_hashes: Optional[list[str]] = None
+    tx_hashes: Optional[List[str]] = None
 ) -> TransactionsPublic:
-    count_statement = select(func.count()).select_from(Transaction)
-    count = session.exec(count_statement).one()
-
-    statement = select(Transaction).offset(skip).limit(limit)
+    base_statement = select(Transaction)
     
     if start_date:
-        statement = statement.where(Transaction.timestamp >= start_date)
+        base_statement = base_statement.where(Transaction.timestamp >= start_date)
     if end_date:
-        statement = statement.where(Transaction.timestamp <= end_date)
+        base_statement = base_statement.where(Transaction.timestamp <= end_date)
     if tx_hashes:
-        statement = statement.where(Transaction.tx_hash.in_(tx_hashes))
+        base_statement = base_statement.where(Transaction.tx_hash.in_(tx_hashes))
+    
+    count_statement = select(func.count()).select_from(base_statement.subquery())
+    count = session.exec(count_statement).one()
+
+    statement = base_statement.order_by(Transaction.timestamp.desc()).offset(skip).limit(limit)
     
     db_objs = session.exec(statement).all()
     return TransactionsPublic(data=db_objs, count=count)
 
-def insert_transactions(*, session: Session, transactions_create: list[TransactionCreate]) -> list[Transaction]:
+def insert_transactions(*, session: Session, transactions_create: List[TransactionCreate]) -> List[Transaction]:
     db_objs = []
     for tx in transactions_create:
         db_obj = Transaction.model_validate(tx)
@@ -56,7 +58,20 @@ def get_spot_price(
     db_obj = session.exec(statement).first()
     return db_obj
 
-def insert_spot_prices(*, session: Session, spot_prices_create: list[SpotPriceCreate]) -> list[SpotPrice]:
+def get_spot_prices(
+    *,
+    session: Session,
+    symbol: str,
+    timestamps: List[datetime]
+) -> List[SpotPrice]:
+    statement = select(SpotPrice).where(
+        SpotPrice.symbol == symbol,
+        SpotPrice.timestamp.in_(timestamps)
+    )
+    db_objs = session.exec(statement).all()
+    return db_objs
+
+def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCreate]) -> List[SpotPrice]:
     db_objs = []
     for sp in spot_prices_create:
         db_obj = SpotPrice.model_validate(sp)
