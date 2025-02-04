@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     schedule.every(settings.SCHEDULER_INTERVAL_MINUTES).minute.do(long_running_task, client=client)
     app.state.stop_run_continuously = stop_run_continuously
 
-    yield 
+    yield {"client": client}
 
     if stop_run_continuously:
         stop_run_continuously.set()

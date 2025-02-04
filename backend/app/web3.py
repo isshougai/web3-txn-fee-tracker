@@ -1,3 +1,4 @@
+import httpx
 from sqlmodel import Session
 from web3 import Web3
 from web3.exceptions import TransactionNotFound, BlockNotFound
@@ -7,7 +8,8 @@ from datetime import datetime, timezone
 from typing import Any, List, Optional
 
 from app.models import TransactionCreate, TransactionsPublic
-from app.crud import get_transactions, insert_transactions
+from app.crud import get_transactions, insert_transactions, get_lastupdate_transaction
+from app.tasks import update_price_and_transactions
 
 ONE_SECOND_MS = 1000
 
@@ -58,6 +60,7 @@ def get_eth_transaction_detail_for_insert(*, session: Session, tx_hash: str) -> 
 def get_eth_transaction_details(
     *,
     session: Session,
+    client: httpx.Client,
     tx_hashes: Optional[List[str]] = None,
     limit: int = 50,
     skip: int = 0,
@@ -69,6 +72,16 @@ def get_eth_transaction_details(
     """
     if not web3.is_connected():
         raise ConnectionError("Failed to connect to the Ethereum node.")
+    
+    check_time = datetime.now(timezone.utc)
+    if end_time is not None:
+        check_time = end_time
+
+    lastupdate_transaction = get_lastupdate_transaction(session=session)
+    if lastupdate_transaction is not None:
+        lastupdate_time = lastupdate_transaction.timestamp
+        if lastupdate_time < check_time:
+            update_price_and_transactions(session=session, client=client, end_time=check_time)
 
     # Fetch all transactions from DB if no filters are provided
     if not tx_hashes:

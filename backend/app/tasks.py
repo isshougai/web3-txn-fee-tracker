@@ -10,24 +10,24 @@ from app.core.config import settings
 
 def long_running_task(client: httpx.Client):
     with Session(engine) as session:
-        utc_now = datetime.now(tz=timezone.utc)
         end_time = datetime.now(tz=timezone.utc)
+        print("Running long running task, current time:", end_time, " UTC")
+        update_price_and_transactions(session=session, client=client, end_time=end_time)
 
-        print("Running long running task, current time:", utc_now, " UTC")
+def update_price_and_transactions(session: Session, client: httpx.Client, end_time: datetime):
+    last_update_spot_price = crud.get_lastupdate_spot_price(session=session)
+    spot_price_update_start_time = last_update_spot_price.timestamp + timedelta(seconds=1) if last_update_spot_price else end_time - timedelta(minutes=5)
 
-        last_update_spot_price = crud.get_lastupdate_spot_price(session=session)
-        spot_price_update_start_time = last_update_spot_price.timestamp + timedelta(seconds=1) if last_update_spot_price else utc_now - timedelta(minutes=5)
+    binance.batch_save_ethusdt_price(session=session, start_time=spot_price_update_start_time, end_time=end_time)
+    crud.update_lastupdate_spot_price(session=session, end_time=end_time)
 
-        binance.batch_save_ethusdt_price(session=session, start_time=spot_price_update_start_time, end_time=end_time)
-        crud.update_lastupdate_spot_price(session=session, end_time=end_time)
+    last_update_transaction = crud.get_lastupdate_transaction(session=session)
+    transaction_update_start_time = last_update_transaction.timestamp + timedelta(seconds=1) if last_update_transaction else end_time - timedelta(minutes=5)
 
-        last_update_transaction = crud.get_lastupdate_transaction(session=session)
-        transaction_update_start_time = last_update_transaction.timestamp + timedelta(seconds=1) if last_update_transaction else utc_now - timedelta(minutes=5)
+    starting_block = etherscan.get_block_no_by_timestamp(client=client, timestamp=int(transaction_update_start_time.timestamp()))
+    ending_block = etherscan.get_block_no_by_timestamp(client=client, timestamp=int(end_time.timestamp()))
 
-        starting_block = etherscan.get_block_no_by_timestamp(client=client, timestamp=int(transaction_update_start_time.timestamp()))
-        ending_block = etherscan.get_block_no_by_timestamp(client=client, timestamp=int(end_time.timestamp()))
-
-        transactions = etherscan.get_erc20_token_transfer_events(
+    transactions = etherscan.get_erc20_token_transfer_events(
             client=client,
             session=session,
             address=settings.UNISWAP_V3_ETH_USDC_ADDRESS,
@@ -35,8 +35,9 @@ def long_running_task(client: httpx.Client):
             to_block=ending_block
         )
 
-        crud.insert_transactions(session=session, transactions_create=transactions)
-        crud.update_lastupdate_transaction(session=session, end_time=end_time)
+    crud.insert_transactions(session=session, transactions_create=transactions)
+    crud.update_lastupdate_transaction(session=session, end_time=end_time)
+
 
 def run_continuously(interval=1):
     cease_continuous_run = threading.Event()

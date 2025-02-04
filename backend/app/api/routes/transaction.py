@@ -6,14 +6,15 @@ from app.models import TransactionsPublic
 from datetime import datetime, timezone
 
 
-router = APIRouter(prefix="/transaction", tags=["transaction"])
+router = APIRouter(prefix="/transactions", tags=["transaction"])
 
 @router.get(
     "/",
     response_model=TransactionsPublic,
 )
 def get_transactions(
-    session: SessionDep, 
+    session: SessionDep,
+    client: HttpClientDep, 
     tx_hashes: Optional[List[str]] = Query(None),
     start_time: Optional[int] = Query(None),
     end_time: Optional[int] = Query(None),
@@ -28,7 +29,7 @@ def get_transactions(
         start_time = datetime.fromtimestamp(start_time / 1000, tz=timezone.utc) if start_time else None
         end_time = datetime.fromtimestamp(end_time / 1000, tz=timezone.utc) if end_time else None
 
-        transactions = web3.get_eth_transaction_details(session=session, tx_hashes=tx_hashes, start_time=start_time, end_time=end_time, skip=skip, limit=limit)
+        transactions = web3.get_eth_transaction_details(session=session, client=client, tx_hashes=tx_hashes, start_time=start_time, end_time=end_time, skip=skip, limit=limit)
 
         return transactions
     
