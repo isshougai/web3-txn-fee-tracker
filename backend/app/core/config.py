@@ -56,6 +56,9 @@ class Settings(BaseSettings):
 
     BINANCE_API_KEY: str
 
+    ETHERSCAN_API_KEY: str
+    ETHERSCAN_URL: str = "https://api.etherscan.io/api"
+    
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -84,6 +87,7 @@ class Settings(BaseSettings):
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
         self._check_default_secret("INFURA_HTTPS", self.INFURA_HTTPS)
         self._check_default_secret("BINANCE_API_KEY", self.BINANCE_API_KEY)
+        self._check_default_secret("ETHERSCAN_API_KEY", self.ETHERSCAN_API_KEY)
 
         return self
 

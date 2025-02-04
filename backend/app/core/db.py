@@ -19,7 +19,7 @@ def init_db(session: Session) -> None:
 
     # This works because the models are already imported and registered from app.models
     # SQLModel.metadata.create_all(engine)
-    init_lastupdate_timestamp = datetime.now(timezone.utc) - timedelta(minutes=5)
+    init_lastupdate_timestamp = datetime.now(tz=timezone.utc) - timedelta(minutes=5)
 
     lastupdate_transaction = crud.get_lastupdate_transaction(session=session)
     if not lastupdate_transaction:

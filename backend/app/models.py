@@ -1,16 +1,19 @@
 import uuid
 
 from datetime import datetime
+from sqlalchemy import BigInteger, Column, DateTime
 from sqlmodel import Field, SQLModel, UniqueConstraint
 
 # Shared properties
 class TransactionBase(SQLModel):
     """Base model for Ethereum transaction."""
     tx_hash: str = Field(unique=True, index=True, max_length=66)
-    timestamp: datetime = Field(index=True)
+    timestamp: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), index=True)
+    )
     txn_fee_usdt: float
     gas_used: int
-    gas_price_wei: int
+    gas_price_wei: int = Field(sa_column=Column(BigInteger))
     txn_fee_eth: float
     eth_usdt_price: float
 

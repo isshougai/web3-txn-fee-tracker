@@ -11,16 +11,16 @@ def get_transactions(
     session: Session,
     skip: int = 0,
     limit: int = 50,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
     tx_hashes: Optional[List[str]] = None
 ) -> TransactionsPublic:
     base_statement = select(Transaction)
     
-    if start_date:
-        base_statement = base_statement.where(Transaction.timestamp >= start_date)
-    if end_date:
-        base_statement = base_statement.where(Transaction.timestamp <= end_date)
+    if start_time:
+        base_statement = base_statement.where(Transaction.timestamp >= start_time)
+    if end_time:
+        base_statement = base_statement.where(Transaction.timestamp <= end_time)
     if tx_hashes:
         base_statement = base_statement.where(Transaction.tx_hash.in_(tx_hashes))
     

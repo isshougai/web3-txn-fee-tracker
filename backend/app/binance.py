@@ -12,19 +12,24 @@ ETH_USDT_SYMBOL = "ETHUSDT"
 spot_client = Client(base_url="https://data-api.binance.vision")
 
 def get_ethusdt_price(*, session: Session, timestamps_ms: List[int]) -> Dict[int, float]:
+    """
+    Retrieves the spot price of ETHUSDT from Binance API for a given list of timestamps.
+    """
     prices = {}
     timestamps = [datetime.fromtimestamp(ts / ONE_SECOND_MS, tz=timezone.utc) for ts in timestamps_ms]
 
     # Check if prices are already in the database
     db_spot_prices = crud.get_spot_prices(session=session, symbol=ETH_USDT_SYMBOL, timestamps=timestamps)
-    found_db_prices = {price.timestamp.timestamp(tz=timezone.utc) * ONE_SECOND_MS for price in db_spot_prices}
+    print(db_spot_prices)
+    for price in db_spot_prices:
+        prices[int(price.timestamp.astimezone(timezone.utc).timestamp() * ONE_SECOND_MS)] = price.price
+    
+    found_db_prices = set(prices.keys())
     missing_prices = set(timestamps_ms) - found_db_prices if timestamps_ms else set()
 
+    # Return if all prices are found in the database
     if not missing_prices:
-        for price in db_spot_prices:
-            prices[price.timestamp.timestamp(tz=timezone.utc) * ONE_SECOND_MS] = price.price
         return prices
-
 
     # Get the earliest and latest timestamps
     start_time = min(missing_prices)
@@ -58,8 +63,11 @@ def get_ethusdt_price(*, session: Session, timestamps_ms: List[int]) -> Dict[int
     return prices
 
 def batch_save_ethusdt_price(*, session: Session, start_time: datetime, end_time: datetime) -> None:
-    start_time_ms = int(start_time.timestamp(tz=timezone.utc) * ONE_SECOND_MS)
-    end_time_ms = int(end_time.timestamp(tz=timezone.utc) * ONE_SECOND_MS)
+    """
+    Retrieves and saves the spot price of ETHUSDT from Binance API for a given start and end time.
+    """
+    start_time_ms = int(start_time.astimezone(timezone.utc).timestamp() * ONE_SECOND_MS)
+    end_time_ms = int(end_time.astimezone(timezone.utc).timestamp() * ONE_SECOND_MS)
 
     max_interval = 1000 * ONE_SECOND_MS 
 
