@@ -3,8 +3,6 @@ import axios from "axios";
 import { Container, TextField, Button, Table, TableHead, TableRow, TableCell, TableBody, TablePagination, Typography, Box, CircularProgress, Chip, Paper } from "@mui/material";
 import qs from 'qs';
 
-const API_BASE_URL = "http://localhost:8000/api/v1";
-
 const TransactionTracker = () => {
   const [txId, setTxId] = useState("");
   const [txHashes, setTxHashes] = useState([]);
@@ -51,8 +49,8 @@ const TransactionTracker = () => {
     try {
       const params = {
         tx_hashes: txHashes.length > 0 ? txHashes : undefined,
-        start_time: startTime ? new Date(startTime).getTime() / 1000 : undefined,
-        end_time: endTime ? new Date(endTime).getTime() / 1000 : undefined,
+        start_time: startTime ? new Date(startTime).getTime() : undefined,
+        end_time: endTime ? new Date(endTime).getTime() : undefined,
         skip: page * rowsPerPage,
         limit: rowsPerPage,
       };
@@ -96,6 +94,11 @@ const TransactionTracker = () => {
     return () => clearInterval(interval);
   }, [fetchEthPrice]);
 
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Transaction Fee Tracker</Typography>
@@ -117,20 +120,20 @@ const TransactionTracker = () => {
           ))}
         </Paper>
         <TextField
-          label="Start Time"
+          label="Start Time (Local)"
           type="datetime-local"
           value={startTime}
           onChange={e => setStartTime(e.target.value)}
           fullWidth
-          slotProps={{ inputLabel: { shrink: true } }}
+          slotProps={{ input: { readOnly: false }, inputLabel: { shrink: true } }}
         />
         <TextField
-          label="End Time"
+          label="End Time (Local)"
           type="datetime-local"
           value={endTime}
           onChange={e => setEndTime(e.target.value)}
           fullWidth
-          slotProps={{ inputLabel: { shrink: true } }}
+          slotProps={{ input: { readOnly: false }, inputLabel: { shrink: true } }}
         />
         <Button variant="contained" onClick={fetchTransactions} disabled={loading}>
           {loading ? <CircularProgress size={24} /> : "Search"}
@@ -138,7 +141,7 @@ const TransactionTracker = () => {
       </Box>
 
       <Typography variant="h6">Summary</Typography>
-      <Typography>Total Transaction Fee (USD): {summary.totalUsdt.toFixed(2)}</Typography>
+      <Typography>Total Transaction Fee (USDT): {summary.totalUsdt.toFixed(2)}</Typography>
       <Typography>Total Transaction Fee (ETH): {summary.totalEth.toFixed(6)}</Typography>
       <Typography>Current ETH/USDT Price: {summary.ethPrice.toFixed(2)}</Typography>
 
@@ -166,7 +169,7 @@ const TransactionTracker = () => {
         component="div"
         count={totalCount}
         page={page}
-        onPageChange={(event, newPage) => setPage(newPage)}
+        onPageChange={handlePageChange}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={event => {
           setRowsPerPage(parseInt(event.target.value, 10));
