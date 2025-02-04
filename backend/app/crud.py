@@ -43,7 +43,6 @@ def insert_transactions(*, session: Session, transactions_create: List[Transacti
             db_objs.append(db_obj)
         except IntegrityError:
             session.rollback()
-            print(f"Duplicate entry found for transaction: {tx}")
     return db_objs
 
 
@@ -82,7 +81,6 @@ def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCr
             db_objs.append(db_obj)
         except IntegrityError:
             session.rollback()
-            print(f"Duplicate entry found for spot price: {sp}")
     return db_objs
 
 # CRUD for LastUpdate

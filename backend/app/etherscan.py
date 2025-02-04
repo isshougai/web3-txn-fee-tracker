@@ -15,9 +15,15 @@ def get_block_no_by_timestamp(*, client: httpx.Client, timestamp: int) -> int:
     """
     url = f"{settings.ETHERSCAN_URL}?module=block&action=getblocknobytime&timestamp={timestamp}&closest=before&apikey={settings.ETHERSCAN_API_KEY}"
     response = client.get(url)
-    response.raise_for_status()
     data = response.json()
-    return int(data["result"])
+    
+    if "result" not in data:
+        raise ValueError(f"Unexpected response format: {data}")
+    
+    if data["result"].isdigit():
+        return int(data["result"])
+    else:
+        raise ValueError(data["result"])
 
 def get_erc20_token_transfer_events(
     *,
