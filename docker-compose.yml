@@ -47,6 +47,7 @@ services:
       - INFURA_API_KEY=${INFURA_API_KEY?Variable not set}
       - INFURA_HTTPS=${INFURA_HTTPS?Variable not set}
       - BINANCE_API_KEY=${BINANCE_API_KEY?Variable not set}
+      - BINANCE_SPOT_API_URL=${BINANCE_SPOT_API_URL?Variable not set}
       - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY?Variable not set}
       - ETHERSCAN_URL=${ETHERSCAN_URL?Variable not set}
       - UNISWAP_V3_ETH_USDC_ADDRESS=${UNISWAP_V3_ETH_USDC_ADDRESS?Variable not set}
@@ -79,6 +80,7 @@ services:
       - INFURA_API_KEY=${INFURA_API_KEY?Variable not set}
       - INFURA_HTTPS=${INFURA_HTTPS?Variable not set}
       - BINANCE_API_KEY=${BINANCE_API_KEY?Variable not set}
+      - BINANCE_SPOT_API_URL=${BINANCE_SPOT_API_URL?Variable not set}
       - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY?Variable not set}
       - ETHERSCAN_URL=${ETHERSCAN_URL?Variable not set}
       - UNISWAP_V3_ETH_USDC_ADDRESS=${UNISWAP_V3_ETH_USDC_ADDRESS?Variable not set}

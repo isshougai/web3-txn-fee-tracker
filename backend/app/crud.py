@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Optional, List
 from app.models import Transaction, TransactionCreate, TransactionsPublic, LastUpdate, LastUpdateCreate, SpotPrice, SpotPriceCreate
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 
 # CRUD for Transaction
@@ -36,10 +37,18 @@ def insert_transactions(*, session: Session, transactions_create: List[Transacti
     db_objs = []
     for tx in transactions_create:
         db_obj = Transaction.model_validate(tx)
-        session.add(db_obj)
+        stmt = pg_insert(Transaction).values(
+            tx_hash=db_obj.tx_hash,
+            timestamp=db_obj.timestamp,
+            txn_fee_usdt=db_obj.txn_fee_usdt,
+            gas_used=db_obj.gas_used,
+            gas_price_wei=db_obj.gas_price_wei,
+            txn_fee_eth=db_obj.txn_fee_eth,
+            eth_usdt_price=db_obj.eth_usdt_price
+        ).on_conflict_do_nothing(index_elements=['tx_hash'])
+        session.exec(stmt)
         try:
             session.commit()
-            session.refresh(db_obj)
             db_objs.append(db_obj)
         except IntegrityError:
             session.rollback()

@@ -3,13 +3,14 @@ from binance.spot import Spot as Client
 from datetime import datetime, timezone
 from app import crud
 from app.models import SpotPriceCreate, SpotPricePublic
+from app.core.config import settings
 
 from sqlmodel import Session
 
 ONE_SECOND_MS = 1000
 ETH_USDT_SYMBOL = "ETHUSDT"
 
-spot_client = Client(base_url="https://data-api.binance.vision")
+spot_client = Client(base_url=settings.BINANCE_SPOT_API_URL)
 
 def get_ethusdt_price(*, session: Session, timestamps_ms: List[int]) -> Dict[int, float]:
     """
@@ -97,6 +98,5 @@ def get_ticker_current_price(*, symbol: str) -> SpotPricePublic:
     Retrieves the current price of a given symbol from Binance API.
     """
     ticker = spot_client.ticker_price(symbol=symbol)
-    print("ticker", ticker)
 
     return SpotPricePublic(symbol=symbol, timestamp=datetime.now(tz=timezone.utc), price=float(ticker["price"]) if ticker else 0.0)

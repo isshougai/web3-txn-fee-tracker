@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     INFURA_HTTPS: str
 
     BINANCE_API_KEY: str
+    BINANCE_SPOT_API_URL: str = "https://data-api.binance.vision"
 
     ETHERSCAN_API_KEY: str
     ETHERSCAN_URL: str = "https://api.etherscan.io/api"
