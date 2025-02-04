@@ -35,6 +35,10 @@ Before deploying it, it is necessary to update the values for the following secr
 
 You can (and should) pass these as environment variables from secrets.
 
+### Important: Due to the limitations of free API usage limits, the service is set to start recording transaction data from 5 minutes before the first time the service is initialized. If batch historical data is needed over a longer time range, please change to a API key with higher usage limits, and then configure from DB starting from when to record historical data.
+
+### Search by transaction hash is unaffected, as long as the transaction hash exist, it will be returned regardless of time range.
+
 ### 2. Docker Compose
 
 After ensuring the `.env` file is properly configured and in the right directory, run `docker compose up --build` from the root directory where the `docker-compose.yml` file is. The `frontend` service will be the last to run, as it depends on the `db` and `backend` to be running first.
