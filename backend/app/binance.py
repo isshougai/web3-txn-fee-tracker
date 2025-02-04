@@ -20,7 +20,6 @@ def get_ethusdt_price(*, session: Session, timestamps_ms: List[int]) -> Dict[int
 
     # Check if prices are already in the database
     db_spot_prices = crud.get_spot_prices(session=session, symbol=ETH_USDT_SYMBOL, timestamps=timestamps)
-    print(db_spot_prices)
     for price in db_spot_prices:
         prices[int(price.timestamp.astimezone(timezone.utc).timestamp() * ONE_SECOND_MS)] = price.price
     

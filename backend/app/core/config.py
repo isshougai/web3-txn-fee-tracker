@@ -44,6 +44,8 @@ class Settings(BaseSettings):
             self.FRONTEND_HOST
         ]
 
+    SCHEDULER_INTERVAL_MINUTES: int = 1
+
     PROJECT_NAME: str
     POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
@@ -58,7 +60,9 @@ class Settings(BaseSettings):
 
     ETHERSCAN_API_KEY: str
     ETHERSCAN_URL: str = "https://api.etherscan.io/api"
-    
+
+    UNISWAP_V3_ETH_USDC_ADDRESS: str = "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640"
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

@@ -2,10 +2,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 import httpx
+import schedule
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
+from app.api.deps import get_db
 from app.core.config import settings
+from app.tasks import long_running_task, run_continuously
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -14,7 +17,17 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     client = httpx.Client(timeout=10.0)
-    yield {"client": client}
+    app.state.client = client
+
+    long_running_task(client=client)
+    stop_run_continuously = run_continuously()
+    schedule.every(settings.SCHEDULER_INTERVAL_MINUTES).minute.do(long_running_task, client=client)
+    app.state.stop_run_continuously = stop_run_continuously
+
+    yield 
+
+    if stop_run_continuously:
+        stop_run_continuously.set()
     client.close()
 
 

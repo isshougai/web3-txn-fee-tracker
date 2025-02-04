@@ -86,12 +86,12 @@ def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCr
     return db_objs
 
 # CRUD for LastUpdate
-def get_lastupdate_transaction(*, session: Session) -> LastUpdate | None:
+def get_lastupdate_transaction(*, session: Session) -> Optional[LastUpdate]:
     statement = select(LastUpdate).where(LastUpdate.type == "transaction")
     db_obj = session.exec(statement).first()
     return db_obj
 
-def get_lastupdate_spot_price(*, session: Session) -> LastUpdate | None:
+def get_lastupdate_spot_price(*, session: Session) -> Optional[LastUpdate]:
     statement = select(LastUpdate).where(LastUpdate.type == "spot_price")
     db_obj = session.exec(statement).first()
     return db_obj
@@ -114,22 +114,22 @@ def insert_lastupdate_spot_price(*, session: Session, lastupdate_spot_price_inse
     session.refresh(db_obj)
     return db_obj
 
-def update_lastupdate_transaction(*, session: Session) -> LastUpdate | None:
+def update_lastupdate_transaction(*, session: Session, end_time: datetime) -> Optional[LastUpdate]:
     statement = select(LastUpdate).where(LastUpdate.type == "transaction")
     db_obj = session.exec(statement).first()
     if db_obj:
-        db_obj.timestamp = datetime.now()
+        db_obj.timestamp = end_time
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
         return db_obj
     return db_obj
 
-def update_lastupdate_spot_price(*, session: Session) -> LastUpdate | None:
+def update_lastupdate_spot_price(*, session: Session, end_time: datetime) -> Optional[LastUpdate]:
     statement = select(LastUpdate).where(LastUpdate.type == "spot_price")
     db_obj = session.exec(statement).first()
     if db_obj:
-        db_obj.timestamp = datetime.now()
+        db_obj.timestamp = end_time
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)

@@ -23,7 +23,7 @@ def get_erc20_token_transfer_events(
     *,
     client: httpx.Client,
     session: Session,
-    contract_address: str,
+    address: str,
     from_block: int,
     to_block: int
 ) -> List[TransactionCreate]:
@@ -39,10 +39,11 @@ def get_erc20_token_transfer_events(
     while True:
         url = (
             f"{settings.ETHERSCAN_URL}?module=account&action=tokentx"
-            f"&contractaddress={contract_address}"
+            f"&address={address}"
             f"&page={page}&offset={offset}&startblock={from_block}&endblock={to_block}"
             f"&sort=desc&apikey={settings.ETHERSCAN_API_KEY}"
         )
+
         response = client.get(url)
         response.raise_for_status()
         data = response.json()

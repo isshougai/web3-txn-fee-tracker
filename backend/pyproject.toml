@@ -14,4 +14,5 @@ dependencies = [
     "pydantic-settings<3.0.0,>=2.7.1",
     "sqlmodel<1.0.0,>=0.0.22",
     "web3>=7.7.0",
+    "schedule>=1.2.2",
 ]
