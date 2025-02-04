@@ -19,7 +19,12 @@ A simple but robust analytics microservice that continuously fetches and saves E
 
 ## How To Run
 
-### 1. Configurations
+### 1. Requirements
+
+* [Docker](https://www.docker.com/).
+* [uv](https://docs.astral.sh/uv/) for Python package and environment management.
+
+### 2. Configurations
 
 A `.env` file is needed in the root directory for loading configurations. A sample `.env.example` is provided with the recommended default values.
 
@@ -35,15 +40,24 @@ Before deploying it, it is necessary to update the values for the following secr
 
 You can (and should) pass these as environment variables from secrets.
 
-### Important: Due to the limitations of free API usage limits, the service is set to start recording transaction data from 5 minutes before the first time the service is initialized. If batch historical data is needed over a longer time range, please change to a API key with higher usage limits, and then configure from DB starting from when to record historical data.
+### Important: Due to the limitations of free API usage limits, the service is set to start recording transaction data from 1 hour before the first time the service is initialized. If batch historical data is needed over a longer time range, please change to a API key with higher usage limits, and then configure from DB starting from when to record historical data.
 
 ### Search by transaction hash is unaffected, as long as the transaction hash exist, it will be returned regardless of time range.
 
-### 2. Docker Compose
+### 3. Docker Compose
 
-After ensuring the `.env` file is properly configured and in the right directory, run `docker compose up --build` from the root directory where the `docker-compose.yml` file is. The `frontend` service will be the last to run, as it depends on the `db` and `backend` to be running first.
+* Ensure the `.env` file is properly configured and in the right directory, when in doubt, use the `.env.example` file
+* Start the local stack with Docker Compose:
 
-Once all required services are up and running, access the UI via [localhost:3000](http://localhost:3000/).
+```bash
+docker compose up --build
+```
+* The `frontend` service will be the last to run, as it depends on the `db` and `backend` to be running first.
+* Now you can open your browser and interact with these URLs:
+
+Frontend, built with Docker, with routes handled based on the path: http://localhost:3000
+
+Backend, JSON based web API based on OpenAPI: http://localhost:8000, with docs at http://localhost:8000/docs
 
 
 ## Backend Features
