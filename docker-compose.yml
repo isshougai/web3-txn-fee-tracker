@@ -85,26 +85,30 @@ services:
       - ETHERSCAN_URL=${ETHERSCAN_URL?Variable not set}
       - UNISWAP_V3_ETH_USDC_ADDRESS=${UNISWAP_V3_ETH_USDC_ADDRESS?Variable not set}
       - SCHEDULER_INTERVAL_MINUTES=${SCHEDULER_INTERVAL_MINUTES?Variable not set}
-
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
       interval: 10s
       timeout: 5s
       retries: 5
-
     build:
       context: ./backend
 
-  redis:
-    image: redis:7.4.2
+  frontend:
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
     restart: always
     networks:
       - default
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      backend:
+        condition: service_healthy
+        restart: true
     ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: ["redis-server", "--appendonly", "yes"]
+      - "3000:3000"
+    build:
+      context: ./frontend
 
 volumes:
   app-db-data:
