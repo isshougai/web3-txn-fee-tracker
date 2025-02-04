@@ -83,10 +83,14 @@ def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCr
     db_objs = []
     for sp in spot_prices_create:
         db_obj = SpotPrice.model_validate(sp)
-        session.add(db_obj)
+        stmt = pg_insert(SpotPrice).values(
+            symbol=db_obj.symbol,
+            timestamp=db_obj.timestamp,
+            price=db_obj.price
+        ).on_conflict_do_nothing(index_elements=['symbol', 'timestamp'])
+        session.exec(stmt)
         try:
             session.commit()
-            session.refresh(db_obj)
             db_objs.append(db_obj)
         except IntegrityError:
             session.rollback()
