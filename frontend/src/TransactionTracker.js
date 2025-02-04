@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Container, TextField, Button, Table, TableHead, TableRow, TableCell, TableBody, TablePagination, Typography, Box, CircularProgress, Chip, Paper } from "@mui/material";
+import { Container, TextField, Button, Table, TableHead, TableRow, TableCell, TableBody, TablePagination, Typography, Box, CircularProgress, Chip, Paper, Alert } from "@mui/material";
 import qs from 'qs';
 
 const TransactionTracker = () => {
@@ -14,6 +14,7 @@ const TransactionTracker = () => {
   const [rowsPerPage, setRowsPerPage] = useState(50);
   const [summary, setSummary] = useState({ totalUsdt: 0, totalEth: 0, ethPrice: 0 });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleTxIdChange = (e) => {
     const value = e.target.value;
@@ -44,13 +45,30 @@ const TransactionTracker = () => {
     setTxHashes(txHashes.filter(hash => hash !== hashToDelete));
   };
 
+  const handleClearDates = () => {
+    setStartTime("");
+    setEndTime("");
+  };
+
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
+    setError("");
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const oneMonth = 30 * 24 * 60 * 60 * 1000; // One month in milliseconds
+
+    if (end - start > oneMonth) {
+      setError("The difference between start time and end time cannot be greater than one month.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const params = {
         tx_hashes: txHashes.length > 0 ? txHashes : undefined,
-        start_time: startTime ? new Date(startTime).getTime() : undefined,
-        end_time: endTime ? new Date(endTime).getTime() : undefined,
+        start_time: startTime ? start.getTime() : undefined,
+        end_time: endTime ? end.getTime() : undefined,
         skip: page * rowsPerPage,
         limit: rowsPerPage,
       };
@@ -70,6 +88,7 @@ const TransactionTracker = () => {
       setSummary(prev => ({ ...prev, totalUsdt, totalEth }));
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setError("Error fetching transactions.");
     } finally {
       setLoading(false);
     }
@@ -85,14 +104,17 @@ const TransactionTracker = () => {
   }, []);
 
   useEffect(() => {
-    fetchTransactions();
     fetchEthPrice();
-  }, [fetchTransactions, fetchEthPrice, page, rowsPerPage]);
+  }, [fetchEthPrice]);
 
   useEffect(() => {
     const interval = setInterval(fetchEthPrice, 5000);
     return () => clearInterval(interval);
   }, [fetchEthPrice]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -103,6 +125,7 @@ const TransactionTracker = () => {
     <Container>
       <Typography variant="h4" gutterBottom>Transaction Fee Tracker</Typography>
       <Box display="flex" flexDirection="column" gap={2} mb={2}>
+        {error && <Alert severity="error">{error}</Alert>}
         <Paper component="form" onBlur={handleTxIdBlur} style={{ padding: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           <TextField
             label="Transaction ID"
@@ -135,9 +158,14 @@ const TransactionTracker = () => {
           fullWidth
           slotProps={{ input: { readOnly: false }, inputLabel: { shrink: true } }}
         />
-        <Button variant="contained" onClick={fetchTransactions} disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : "Search"}
-        </Button>
+        <Box display="flex" justifyContent="space-between">
+          <Button variant="contained" onClick={handleClearDates} disabled={loading}>
+            Clear Dates
+          </Button>
+          <Button variant="contained" onClick={fetchTransactions} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : "Search"}
+          </Button>
+        </Box>
       </Box>
 
       <Typography variant="h6">Summary</Typography>
