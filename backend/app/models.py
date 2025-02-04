@@ -63,6 +63,11 @@ class SpotPriceBase(SQLModel):
     )
     price: float
 
+# Shared properties
+class SpotPricePublic(SpotPriceBase):
+    """Response model for spot price data."""
+    pass
+
 class SpotPriceCreate(SpotPriceBase):
     """Base model for spot price data."""
     pass

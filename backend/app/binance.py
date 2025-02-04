@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 from binance.spot import Spot as Client
 from datetime import datetime, timezone
 from app import crud
-from app.models import SpotPriceCreate
+from app.models import SpotPriceCreate, SpotPricePublic
 
 from sqlmodel import Session
 
@@ -91,3 +91,12 @@ def batch_save_ethusdt_price(*, session: Session, start_time: datetime, end_time
     # Batch insert new spot prices into the database
     if new_spot_prices:
         crud.insert_spot_prices(session=session, spot_prices_create=new_spot_prices)
+
+def get_ticker_current_price(*, symbol: str) -> SpotPricePublic:
+    """
+    Retrieves the current price of a given symbol from Binance API.
+    """
+    ticker = spot_client.ticker_price(symbol=symbol)
+    print("ticker", ticker)
+
+    return SpotPricePublic(symbol=symbol, timestamp=datetime.now(tz=timezone.utc), price=float(ticker["price"]) if ticker else 0.0)
