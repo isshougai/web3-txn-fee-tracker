@@ -15,6 +15,9 @@ def long_running_task(client: httpx.Client):
         update_price_and_transactions(session=session, client=client, end_time=end_time)
 
 def update_price_and_transactions(session: Session, client: httpx.Client, end_time: datetime):
+    """
+    Update spot price and transaction data up till given end_time
+    """
     last_update_spot_price = crud.get_lastupdate_spot_price(session=session)
     spot_price_update_start_time = last_update_spot_price.timestamp + timedelta(seconds=1) if last_update_spot_price else end_time - timedelta(minutes=5)
 

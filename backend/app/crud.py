@@ -16,6 +16,9 @@ def get_transactions(
     end_time: Optional[datetime] = None,
     tx_hashes: Optional[List[str]] = None
 ) -> TransactionsPublic:
+    """
+    Gets transactions from DB, with filtering by start_time, end_time and tx_hashes and pagination support
+    """
     base_statement = select(Transaction)
     
     if start_time:
@@ -34,6 +37,9 @@ def get_transactions(
     return TransactionsPublic(data=db_objs, count=count)
 
 def insert_transactions(*, session: Session, transactions_create: List[TransactionCreate]) -> List[Transaction]:
+    """
+    Inserts transactions into DB, on conflict do nothing.
+    """
     db_objs = []
     for tx in transactions_create:
         db_obj = Transaction.model_validate(tx)
@@ -62,6 +68,9 @@ def get_spot_price(
     symbol: str,
     timestamp: datetime
 ) -> SpotPrice | None:
+    """
+    Gets spot price for a given symbol and timestamp from DB
+    """
     statement = select(SpotPrice).where(SpotPrice.symbol == symbol).where(SpotPrice.timestamp == timestamp)
     db_obj = session.exec(statement).first()
     return db_obj
@@ -72,6 +81,9 @@ def get_spot_prices(
     symbol: str,
     timestamps: List[datetime]
 ) -> List[SpotPrice]:
+    """
+    Gets spot prices for a given symbol and time range from DB
+    """
     statement = select(SpotPrice).where(
         SpotPrice.symbol == symbol,
         SpotPrice.timestamp.in_(timestamps)
@@ -80,6 +92,9 @@ def get_spot_prices(
     return db_objs
 
 def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCreate]) -> List[SpotPrice]:
+    """
+    Saves spot prices into DB, on conflict do nothing.
+    """
     db_objs = []
     for sp in spot_prices_create:
         db_obj = SpotPrice.model_validate(sp)
@@ -98,16 +113,25 @@ def insert_spot_prices(*, session: Session, spot_prices_create: List[SpotPriceCr
 
 # CRUD for LastUpdate
 def get_lastupdate_transaction(*, session: Session) -> Optional[LastUpdate]:
+    """
+    Get transaction data last update time
+    """
     statement = select(LastUpdate).where(LastUpdate.type == "transaction")
     db_obj = session.exec(statement).first()
     return db_obj
 
 def get_lastupdate_spot_price(*, session: Session) -> Optional[LastUpdate]:
+    """
+    Get spot price data last update time
+    """
     statement = select(LastUpdate).where(LastUpdate.type == "spot_price")
     db_obj = session.exec(statement).first()
     return db_obj
 
 def insert_lastupdate_transaction(*, session: Session, lastupdate_transaction_insert: LastUpdateCreate) -> LastUpdate:
+    """
+    Insert last update time for transaction data
+    """
     db_obj = LastUpdate.model_validate(
         lastupdate_transaction_insert
     )
@@ -117,6 +141,9 @@ def insert_lastupdate_transaction(*, session: Session, lastupdate_transaction_in
     return db_obj
 
 def insert_lastupdate_spot_price(*, session: Session, lastupdate_spot_price_insert: LastUpdateCreate) -> LastUpdate:
+    """
+    Insert last update time for spot price data
+    """
     db_obj = LastUpdate.model_validate(
         lastupdate_spot_price_insert
     )
@@ -126,6 +153,9 @@ def insert_lastupdate_spot_price(*, session: Session, lastupdate_spot_price_inse
     return db_obj
 
 def update_lastupdate_transaction(*, session: Session, end_time: datetime) -> Optional[LastUpdate]:
+    """
+    Update last update time for transaction data
+    """
     statement = select(LastUpdate).where(LastUpdate.type == "transaction")
     db_obj = session.exec(statement).first()
     if db_obj:
@@ -137,6 +167,9 @@ def update_lastupdate_transaction(*, session: Session, end_time: datetime) -> Op
     return db_obj
 
 def update_lastupdate_spot_price(*, session: Session, end_time: datetime) -> Optional[LastUpdate]:
+    """
+    Update last update time for spot price data
+    """
     statement = select(LastUpdate).where(LastUpdate.type == "spot_price")
     db_obj = session.exec(statement).first()
     if db_obj:
